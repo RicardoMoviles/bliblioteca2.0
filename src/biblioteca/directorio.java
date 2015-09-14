@@ -52,6 +52,7 @@ public class directorio extends libro{
     
     
      public void IngresarLibroNuevo(){
+        int ban=1;
          
         try{
             Statement estado = con.createStatement();
@@ -68,10 +69,37 @@ public class directorio extends libro{
             info.codigo = teclado.next();
             System.out.println("Cantidad: ");
             info.cantidad = teclado.nextInt();
+            while(ban==1){
             Menu4();
-            info.area = seleccionc;
+            switch(seleccion){
+                case 1:
+                info.area = "Física";
+                ban=0;
+                break;
+                case 2:
+                info.area = "Química";
+                ban=0;
+                break;
+                case 3:
+                info.area = "Tecnología";
+                ban=0;
+                break;
+                case 4:
+                info.area = "Cálculo";
+                ban=0;
+                break;
+                case 5:
+                info.area = "Progamación";
+                ban=0;
+                break;
+                default:
+                System.out.println("Error elija la materia de las opciones ");
+                ban=1;
+            }
+            }
+            
             entradas++;
-            estado.executeUpdate("INSERT INTO `libro` VALUES ('"+info.nombre+"', '"+info.autor+"', '"+info.AñoDePublicacion+"', '"+info.AñoDePublicacion+"', '"+info.codigo+"', '"+info.cantidad+"', '"+info.area+"' )");
+            estado.executeUpdate("INSERT INTO `libro` (`nombre`, `autor`, `año de publicacion`, `codigo`, `cantidad`, `area`) VALUES ('"+info.nombre+"', '"+info.autor+"', '"+info.AñoDePublicacion+"', '"+info.codigo+"', '"+info.cantidad+"', '"+info.area+"' )");
                        
         } catch (SQLException ex) {
             System.out.println("Error de mysql");
@@ -84,6 +112,7 @@ public class directorio extends libro{
      
         public void ActualizarLibro(){
             int id;
+            int ban=1;
             
             System.out.println("ACTUALIZAR LIBRO");
             id=buscar();
@@ -104,10 +133,36 @@ public class directorio extends libro{
                 info.codigo = teclado.next();
                 System.out.println("Cantidad: ");
                 info.cantidad = teclado.nextInt();
-                System.out.println("Area: ");
-                info.area = teclado.next();
+               while(ban==1){
+                Menu4();
+                switch(seleccion){
+                case 1:
+                info.area = "Física";
+                ban=0;
+                break;
+                case 2:
+                info.area = "Química";
+                ban=0;
+                break;
+                case 3:
+                info.area = "Tecnología";
+                ban=0;
+                break;
+                case 4:
+                info.area = "Cálculo";
+                ban=0;
+                break;
+                case 5:
+                info.area = "Progamación";
+                ban=0;
+                break;
+                default:
+                System.out.println("Error elija la materia de las opciones ");
+                ban=1;
+            }
+            }
                 
-                estado.executeUpdate("INSERT INTO `libro` VALUES ('"+info.nombre+"', '"+info.autor+"', '"+info.AñoDePublicacion+"', '"+info.AñoDePublicacion+"', '"+info.codigo+"', '"+info.cantidad+"', '"+info.area+"' )");
+                estado.executeUpdate("UPDATE `libro` SET `nombre`='"+info.nombre+"',`autor`='"+info.autor+"',`año de publicacion`='"+info.AñoDePublicacion+"',`codigo`='"+info.codigo+"',`cantidad`='"+info.cantidad+"',`area`='"+info.area+"' WHERE `nombre`='"+PalabraClave+"' ");
                 } catch (SQLException ex) {
                 System.out.println("Error de mysql");
                 } catch (Exception e) {
