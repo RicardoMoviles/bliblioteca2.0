@@ -175,9 +175,11 @@ public class directorio extends libro{
             //Delete o eliminar dato
             estado.executeUpdate("DELETE FROM `libro` WHERE `nombre` LIKE '"+PalabraClave+"'");
             resultado = estado.executeQuery("SELECT * FROM `clientes`");
+            while (resultado.next()){
             System.out.println(resultado.getString("nombre") +"\t"+ resultado.getString("autor")
                         +"\t"+ resultado.getInt("año de publicacion") +"\t"+ resultado.getString("código")
                 +"\t"+ resultado.getInt("cantidad") +"\t"+ resultado.getString("area"));
+            }
             } catch (SQLException ex) {
                 System.out.println("Error de mysql");
             } catch (Exception e) {
@@ -248,8 +250,8 @@ public class directorio extends libro{
                         info.cantidad= info.cantidad-1;
                         prestamo.cedula = seleccion;
                         prestamo.nombre = resultado.getString("nombre");
-                        prestamo.cantidad = prestamo.cantidad+1;
-                         estado.executeUpdate("INSERT INTO `libro` VALUES ('"+prestamo.cedula+"', '"+prestamo.nombre+"', '"+prestamo.cantidad+"' )");
+                        estado.executeUpdate("INSERT INTO `prestamo` VALUES ('"+prestamo.cedula+"', '"+prestamo.nombre+"' )");
+                        estado.executeUpdate("UPDATE INTO `libro` WHERE `nombre` LIKE '"+PalabraClave+"' VALUES (,,,,'"+info.cantidad+"',) ");
                     }
                 } catch (SQLException ex) {
                 System.out.println("Error de mysql");
@@ -262,35 +264,51 @@ public class directorio extends libro{
         }
         
         public void Devolver(){
-            int id;
+           int id;
             id=buscar();
-            if(id==-1){
+            if(id!=1){
                 System.out.println("No encontrado");
             }
             else{
-                info.cantidad= info[id].cantidad+1;
-                prestamo.cantidad = prestamo[id].cantidad-1;
+                try{
+                System.out.println("Ingrese cedula");
+                seleccion = teclado.nextInt();
+                Statement estado = con.createStatement();
+                
+                resultado = estado.executeQuery("SELECT * FROM `libro` WHERE `nombre` LIKE '"+PalabraClave+"'");
+                info.cantidad=resultado.getInt("cantidad");
+                info.cantidad= info.cantidad+1;
+                estado.executeUpdate("DELETE FROM `libro` WHERE `nombre` LIKE '"+PalabraClave+"'");
+                estado.executeUpdate("UPDATE INTO `libro` WHERE `nombre` LIKE '"+PalabraClave+"' VALUES (,,,,'"+info.cantidad+"',) ");
+                    
+                } catch (SQLException ex) {
+                System.out.println("Error de mysql");
+                } catch (Exception e) {
+                System.out.println("Se ha encontrado un error de tipo: "
+                    + e.getMessage());
+                }  
+                
             }
         }
         
         public void LibrosPrestados(){
-            for(int i=0; i<10;i++){
-                if(prestamo[i].cantidad==0){
-                    
+            try{
+                Statement estado = con.createStatement();
+                resultado = estado.executeQuery("SELECT * FROM `prestamo` ");
+                while (resultado.next()){
+                System.out.println(resultado.getString("cedula") +"\t"+ resultado.getString("nombre"));
                 }
-                else{
-                System.out.println("Nombre: "+prestamo[i].nombre);
-                System.out.println("Autor: "+prestamo[i].autor);
-                System.out.println("Año de publicacion; "+prestamo[i].AñoDePublicacion);
-                System.out.println("Código: "+prestamo[i].codigo);
-                System.out.println("Cantidad: "+prestamo[i].cantidad);
-                System.out.println("Area: "+prestamo[i].area);
-                System.out.println();
-                }
-            }
+            } catch (SQLException ex) {
+                System.out.println("Error de mysql");
+            } catch (Exception e) {
+                System.out.println("Se ha encontrado un error de tipo: "
+                    + e.getMessage());
+            }  
+            
+           
         }
         
-        public void Llenar(){
+        /*public void Llenar(){
             for(int i=0; i<10;i++){
                 prestamo[i] = new directorio();
                 prestamo[i].nombre = "null";
@@ -300,5 +318,5 @@ public class directorio extends libro{
                 prestamo[i].cantidad = 0;
                 prestamo[i].area = "null";
             }
-        }
+        }*/
 }
