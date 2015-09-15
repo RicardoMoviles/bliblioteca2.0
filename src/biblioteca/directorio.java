@@ -5,7 +5,6 @@ import java.sql.*;
 public class directorio extends libro{
     libro info = new libro();//espacio para 10 Libros
     libro prestamo = new libro();
-    int entradas = 0;
     String PalabraClave;
     int seleccion;
     String seleccionc;
@@ -13,7 +12,6 @@ public class directorio extends libro{
      String user = "rra_moviles";//db4free
      String password = "1036moviles";//db4free.net
      String url = "jdbc:mysql://db4free.net/contactosrra";
-     String nombre, apellido, tel;
      Connection con;
      ResultSet resultado; 
      
@@ -97,8 +95,7 @@ public class directorio extends libro{
                 ban=1;
             }
             }
-            
-            entradas++;
+           
             estado.executeUpdate("INSERT INTO `libro` (`nombre`, `autor`, `año de publicacion`, `codigo`, `cantidad`, `area`) VALUES ('"+info.nombre+"', '"+info.autor+"', '"+info.AñoDePublicacion+"', '"+info.codigo+"', '"+info.cantidad+"', '"+info.area+"' )");
                        
         } catch (SQLException ex) {
@@ -178,12 +175,12 @@ public class directorio extends libro{
             
             try{
             Statement estado = con.createStatement();
-            System.out.println("Ingrese Palabra Clace");
+            System.out.println("Ingrese Palabra Clave");
             PalabraClave = teclado.next();
             
             //Buscar por nombre
-            resultado = estado.executeQuery("SELECT * FROM `libro` WHERE `nombre` LIKE '"+PalabraClave+"'");
-            while (resultado.next()){
+            resultado = estado.executeQuery("SELECT * FROM `libro`  WHERE `nombre`='"+PalabraClave+"'");
+            if (resultado.next()){
                 indice=1;
             }
             } catch (SQLException ex) {
@@ -204,10 +201,11 @@ public class directorio extends libro{
             }
             else{
                 try{
-                Statement estado = con.createStatement();
+                Statement estado = con.createStatement(); 
+                resultado = estado.executeQuery("SELECT * FROM `libro`  WHERE `nombre`='"+PalabraClave+"'");
                 while (resultado.next()){
-                System.out.println(resultado.getString("nombre") +"\t"+ resultado.getString("autor")
-                        +"\t"+ resultado.getInt("año de publicacion") +"\t"+ resultado.getString("código")
+                System.out.println(resultado.getString("nombre")+"\t"+resultado.getString("autor")
+                        +"\t"+ resultado.getInt("año de publicacion") +"\t"+ resultado.getString("codigo")
                 +"\t"+ resultado.getInt("cantidad") +"\t"+ resultado.getString("area"));
                 }
                 } catch (SQLException ex) {
@@ -229,12 +227,6 @@ public class directorio extends libro{
             
             //Delete o eliminar dato
             estado.executeUpdate("DELETE FROM `libro` WHERE `nombre` LIKE '"+PalabraClave+"'");
-            resultado = estado.executeQuery("SELECT * FROM `clientes`");
-            while (resultado.next()){
-            System.out.println(resultado.getString("nombre") +"\t"+ resultado.getString("autor")
-                        +"\t"+ resultado.getInt("año de publicacion") +"\t"+ resultado.getString("código")
-                +"\t"+ resultado.getInt("cantidad") +"\t"+ resultado.getString("area"));
-            }
             } catch (SQLException ex) {
                 System.out.println("Error de mysql");
             } catch (Exception e) {
@@ -293,20 +285,21 @@ public class directorio extends libro{
                 System.out.println("Ingrese cedula");
                 seleccion = teclado.nextInt();
                 Statement estado = con.createStatement();
-                
-                resultado = estado.executeQuery("SELECT * FROM `libro` WHERE `nombre` LIKE '"+PalabraClave+"'");
-                
-                
-                    if(resultado.getInt("cantidad")==0){
-                        System.out.println("No hay mas de este libro");
-                    }
-                    else{
+                resultado = estado.executeQuery("SELECT * FROM `libro`  WHERE `nombre`='"+PalabraClave+"'");
+                    if(resultado.next()){
                         info.cantidad=resultado.getInt("cantidad");
-                        info.cantidad= info.cantidad-1;
-                        prestamo.cedula = seleccion;
-                        prestamo.nombre = resultado.getString("nombre");
-                        estado.executeUpdate("INSERT INTO `prestamo` VALUES ('"+prestamo.cedula+"', '"+prestamo.nombre+"' )");
-                        estado.executeUpdate("UPDATE INTO `libro` WHERE `nombre` LIKE '"+PalabraClave+"' VALUES (,,,,'"+info.cantidad+"',) ");
+                        if(info.cantidad==0){
+                            System.out.println("No hay mas de este libro");
+                        }
+                        else{
+                            System.out.println("ENTRO");
+                            info.cantidad=(resultado.getInt("cantidad"));
+                            info.cantidad= (info.cantidad-1);
+                            prestamo.cedula = seleccion;
+                            prestamo.nombre = resultado.getString("nombre");
+                            estado.executeUpdate("INSERT INTO `prestamo` (`cedula`, `nombre`) VALUES ('"+prestamo.cedula+"', '"+prestamo.nombre+"')");
+                            estado.executeUpdate("UPDATE `libro` SET `cantidad`='"+info.cantidad+"' WHERE `nombre`='"+PalabraClave+"' ");
+                        }
                     }
                 } catch (SQLException ex) {
                 System.out.println("Error de mysql");
@@ -330,12 +323,13 @@ public class directorio extends libro{
                 seleccion = teclado.nextInt();
                 Statement estado = con.createStatement();
                 
-                resultado = estado.executeQuery("SELECT * FROM `libro` WHERE `nombre` LIKE '"+PalabraClave+"'");
+                resultado = estado.executeQuery("SELECT * FROM `libro` WHERE `nombre`='"+PalabraClave+"'");
+                if(resultado.next()){
                 info.cantidad=resultado.getInt("cantidad");
                 info.cantidad= info.cantidad+1;
-                estado.executeUpdate("DELETE FROM `libro` WHERE `nombre` LIKE '"+PalabraClave+"'");
-                estado.executeUpdate("UPDATE INTO `libro` WHERE `nombre` LIKE '"+PalabraClave+"' VALUES (,,,,'"+info.cantidad+"',) ");
-                    
+                estado.executeUpdate("DELETE FROM `prestamo` WHERE `nombre` LIKE '"+PalabraClave+"' AND `cedula`='"+seleccion+"'");
+                estado.executeUpdate("UPDATE `libro` SET `cantidad`='"+info.cantidad+"' WHERE `nombre`='"+PalabraClave+"' ");    
+                }
                 } catch (SQLException ex) {
                 System.out.println("Error de mysql");
                 } catch (Exception e) {
@@ -351,7 +345,7 @@ public class directorio extends libro{
                 Statement estado = con.createStatement();
                 resultado = estado.executeQuery("SELECT * FROM `prestamo` ");
                 while (resultado.next()){
-                System.out.println(resultado.getString("cedula") +"\t"+ resultado.getString("nombre"));
+                System.out.println(resultado.getInt("cedula") +"\t"+ resultado.getString("nombre"));
                 }
             } catch (SQLException ex) {
                 System.out.println("Error de mysql");
@@ -362,16 +356,4 @@ public class directorio extends libro{
             
            
         }
-        
-        /*public void Llenar(){
-            for(int i=0; i<10;i++){
-                prestamo[i] = new directorio();
-                prestamo[i].nombre = "null";
-                prestamo[i].autor = "null";
-                prestamo[i].AñoDePublicacion = 0;
-                prestamo[i].codigo = "null";
-                prestamo[i].cantidad = 0;
-                prestamo[i].area = "null";
-            }
-        }*/
 }
